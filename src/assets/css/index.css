@@ -1,0 +1,8 @@
+@media print {
+  @page {
+    size: auto;
+  }
+  body {
+    margin-left: 3px;
+  }
+}
