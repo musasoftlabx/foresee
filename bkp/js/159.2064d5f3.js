@@ -1,0 +1,1 @@
+"use strict";(self["webpackChunkforesee"]=self["webpackChunkforesee"]||[]).push([[159],{4159:function(e,u,n){n.r(u),n.d(u,{default:function(){return c}});var r=function(){var e=this,u=e._self._c;return u("router-view")},t=[],l=n(61431),s={},f=(0,l.Z)(s,r,t,!1,null,null,null),c=f.exports}}]);

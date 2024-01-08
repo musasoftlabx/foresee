@@ -19,8 +19,25 @@ $dataset = ChainPDO("SELECT SUBSTR(code, 1, 5) AS code, section, SpecialCode, co
     WHERE storeId = ?
     GROUP BY scans.barcode, code
     ORDER BY code", [$storeId])->fetchAll();
+    
+$newset = [];
+foreach ($dataset as $key => $value) {
+    $code = (int) substr($value['code'], 1, 5);
+    if ($code >= $from && $code <= $to) {
+        array_push($newset, [
+            'code' => $value['code'],
+            'section' => $value['section'],
+            'SpecialCode' => $value['SpecialCode'],
+            'color' => $value['color'],
+            'size' => $value['size'],
+            'name' => $value['name'],
+            'barcode' => $value['barcode'],
+            'quantity' => $value['quantity']
+        ]);
+    }
+}
 
-$dataset = array_slice($dataset, $from, $to);
+$dataset = $newset;
 
 $count = count($dataset);
 
@@ -65,7 +82,7 @@ for ($i = 0; $i < $count; $i++) {
         $dataset[$i]['color'],
         $dataset[$i]['size'],
         $dataset[$i]['name'],
-        $dataset[$i]['barcode'],
+        $dataset[$i]['barcode'] . ' ',
         $dataset[$i]['quantity'],
     ]);
 
@@ -132,13 +149,15 @@ $spreadsheet->getActiveSheet()->getColumnDimension('C')->setWidth(15);
 $spreadsheet->getActiveSheet()->getColumnDimension('D')->setWidth(25);
 $spreadsheet->getActiveSheet()->getColumnDimension('E')->setWidth(7);
 $spreadsheet->getActiveSheet()->getColumnDimension('F')->setWidth(30);
-$spreadsheet->getActiveSheet()->getColumnDimension('G')->setWidth(15);
+$spreadsheet->getActiveSheet()->getColumnDimension('G')->setWidth(20);
 $spreadsheet->getActiveSheet()->getColumnDimension('H')->setWidth(10);
 $spreadsheet->getActiveSheet()->getStyle($rangeHeaders)->applyFromArray($styleArrayHeaders);
 $spreadsheet->getActiveSheet()->getStyle($rangeDataset)->applyFromArray($styleArrayDataset);
 $spreadsheet->getActiveSheet()->mergeCells('A1:C1');
 $spreadsheet->getActiveSheet()->mergeCells('A2:D2');
-$spreadsheet->getActiveSheet()->getStyle('G')->getNumberFormat()->setFormatCode('#');
+$spreadsheet->getActiveSheet()->getStyle('G')->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\Protection::PROTECTION_PROTECTED);
+//$spreadsheet->getActiveSheet()->getStyle('G')->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\TextFormat::FORMAT_NUMBER);
+//$spreadsheet->getActiveSheet()->getStyle('G')->getNumberFormat()->setFormatCode('#');
 $spreadsheet->getActiveSheet()->setAutoFilter($rangeHeaders);
 $spreadsheet->getActiveSheet()->getRowDimension(1)->setRowHeight(45);
 $spreadsheet->getActiveSheet()->getRowDimension(2)->setRowHeight(60);

@@ -47,50 +47,16 @@
           <v-form ref="AddStore" v-model="valid">
             <v-row no-gutters>
               <v-col cols="12" class="px-2">
-                <vue-tel-input-vuetify
-                  v-model="country.name"
+                <v-text-field
+                  ref="Client"
+                  v-model="client"
                   :rules="[validators.required]"
-                  :defaultCountry="'KE'"
-                  :preferredCountries="['KE', 'UG', 'TZ']"
-                  :mode="'international'"
-                  :inputOptions="{ showDialCode: true }"
-                  selectLabel=""
-                  label="Country *"
-                  filled
-                  rounded
-                  @country-changed="GetCountry"
-                />
-              </v-col>
-              <!-- <v-col cols="4" class="px-2"
-                ><div class="text-caption">Selected country:</div>
-                <div class="font-weight-bold" style="color: #76c7b1">
-                  {{ country.name }}
-                </div></v-col
-              > -->
-
-              <v-col cols="12" class="px-2">
-                <v-select
-                  v-model="client.name"
-                  :rules="[validators.required]"
-                  :items="client.clients"
                   label="Client *"
                   filled
                   rounded
-                  prepend-inner-icon="mdi-domain"
-                />
-              </v-col>
-
-              <v-col cols="12" class="px-2">
-                <v-text-field
-                  ref="StoreName"
-                  v-model="StoreName"
-                  :rules="[validators.required]"
-                  label="Store Name *"
-                  filled
-                  rounded
                   dense
-                  prepend-inner-icon="mdi-store"
-                  @keyup.enter="AddStore"
+                  prepend-inner-icon="mdi-domain"
+                  @keyup.enter="AddClient"
                 />
               </v-col>
               <v-col cols="12" align="end" class="px-2 pt-3 pb-6">
@@ -100,7 +66,7 @@
                   rounded
                   :loading="loading"
                   :disabled="!valid || loading"
-                  @click="AddStore"
+                  @click="AddClient"
                   >CREATE</v-btn
                 >
               </v-col>
@@ -120,27 +86,15 @@ export default {
       visible: false,
       loading: false,
       valid: false,
-      country: {
-        name: null,
-        code: null,
-      },
-      client: {
-        name: "LC Waikiki",
-        clients: ["LC Waikiki", "Aeropostale", 'FLO'],
-      },
-      StoreName: null,
+      client: "", 
     };
   },
   methods: {
-    GetCountry(country) {
-      this.country.name = country.name;
-      this.country.code = country.iso2;
-    },
-    AddStore() {
+    AddClient() {
       this.loading = true;
 
       this.promiseFetch(this.$store.getters.fetchTimeout)(
-        fetch(`${this.$store.getters.endpoint}Stores/`, {
+        fetch(`${this.$store.getters.endpoint}Clients/`, {
           method: "POST",
           headers: {
             Accept: "application/json",
@@ -148,9 +102,7 @@ export default {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            country: this.country,
-            client: this.client.name,
-            StoreName: this.StoreName,
+            client: this.client,
           }),
         })
       )
@@ -165,9 +117,8 @@ export default {
                 color: "warning",
               });
             } else {
-              this.client.name = null;
-              this.StoreName = null;
-              this.$emit("NewStore", res);
+              this.client = null;
+              this.$emit("NewClient", res);
               this.visible = false;
             }
           })

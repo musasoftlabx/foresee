@@ -109,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     array_push($dataset, [
                         'column' => $value,
                         'formattedColumn' => ucwords($value),
-                        'excelField' => ChainPDO("SELECT excel_field FROM excel_mappings WHERE db_column = ?", [$value])->fetch(PDO::FETCH_COLUMN)
+                        'excelField' => ChainPDO("SELECT excel_field FROM excel_mappings WHERE db_column = ? AND `table` = ?", [$value, 'products'])->fetch(PDO::FETCH_COLUMN)
                     ]);
                 }
             }

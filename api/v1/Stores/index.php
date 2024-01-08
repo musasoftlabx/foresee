@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
 
     echo json_encode([
-        'workingStore' => ChainPDO("SELECT workingStore, workingDate FROM defaults")->fetch(),
+        'workingStore' => ChainPDO("SELECT workingStore, workingDate, scanCharsLimit, `strict` FROM defaults")->fetch(),
         'stores' => $dataset
     ]);
 }
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $StoreName   = $_JSON['StoreName'];
     $client   = $_JSON['client'];
 
-    $maxCode = ChainPDO("SELECT MAX(code) FROM stores WHERE country = ?", [$country])->fetchColumn();
+    $maxCode = ChainPDO("SELECT COALESCE(MAX(code),0) FROM stores WHERE country = ?", [$country])->fetchColumn();
     $count = preg_replace('/[^0-9]/', '', $maxCode);
 
     !$maxCode ? $count = 1 : $count++;
@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
-    ChainPDO("UPDATE defaults SET workingStore = ?, workingDate = ?, workingStoreDate = ?", [$_JSON['workingStore'], $_JSON['workingDate'], $_JSON['workingStoreDate']]);
+    ChainPDO("UPDATE defaults SET workingStore = ?, workingDate = ?, workingStoreDate = ?, scanCharsLimit = ?, `strict` = ?", [$_JSON['workingStore'], $_JSON['workingDate'], $_JSON['workingStoreDate'], $_JSON['scanCharsLimit'], $_JSON['strict']]);
     echo json_encode(['success' => true]);
 }
 

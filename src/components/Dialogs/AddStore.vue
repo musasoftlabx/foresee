@@ -126,13 +126,51 @@ export default {
       },
       client: {
         name: "LC Waikiki",
-        clients: ["LC Waikiki", "Aeropostale", 'FLO'],
+        clients: [],
       },
       StoreName: null,
     };
   },
   mounted(){
-    
+    this.promiseFetch(this.$store.getters.fetchTimeout)(
+      fetch(`${this.$store.getters.endpoint}Clients/`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${this.$store.getters.token}`,
+          "Content-Type": "application/json",
+        }
+      })
+    )
+      .then((response) => {
+        response.text().then((res) => {
+          if (response.status > 200) {
+            this.$refs.Alert.Alertify({
+              title: "Update Error!",
+              content:
+                "The last change you made could not be saved. Kindly retry.",
+              visible: true,
+              icon: "mdi-wifi-strength-1-alert",
+              color: "error",
+            });
+          } else {
+            this.client.clients = JSON.parse(res).map(({client}) => client)
+          }
+        });
+      })
+      .catch(() => {
+        this.$Progress.fail();
+        this.$refs.Alert.Alertify({
+          title: "Connection Timeout",
+          content: this.$store.getters.fetchTimeoutError,
+          visible: true,
+          icon: "mdi-wifi-strength-1-alert",
+          color: "error",
+        });
+      })
+      .finally(() => {
+        this.$Progress.finish();
+      });
   },
   methods: {
     GetCountry(country) {

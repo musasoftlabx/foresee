@@ -163,26 +163,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else if ($_GET['Scan'] === 'product') {
             $barcode  = $_JSON['barcode'];
 
-            //if (strlen($barcode) === 13) {
-            if (strlen($barcode) >= 8 && strlen($barcode) <= 15) {
-                $id       = $_JSON['id'];
-                $batteryLevel   = $_JSON['batteryLevel'];
-                $code     = $_JSON['code'];
-                $serialNumber   = $_JSON['serialNumber'];
-                $storeId   = $_JSON['storeId'];
+            $defaults = ChainPDO("SELECT scanCharsLimit, `strict` FROM defaults")->fetch();
+            $strict = $defaults['strict'] === 1 ? true : false;
 
-                $doesExist = ChainPDO("SELECT COUNT(barcode) FROM products WHERE barcode = ?", [$barcode])->fetchColumn();
+            if ($strict) {
+                if (strlen($barcode) === $defaults['scanCharsLimit']) {
+                    $id       = $_JSON['id'];
+                    $batteryLevel   = $_JSON['batteryLevel'];
+                    $code     = $_JSON['code'];
+                    $serialNumber   = $_JSON['serialNumber'];
+                    $storeId   = $_JSON['storeId'];
 
-                if ($doesExist > 0) {
-                    echo json_encode(['success' => 'Product was found and updated']);
-                } else {
-                    http_response_code(404);
-                    echo json_encode([
-                        'error' => 'Product not found.',
-                        'message' => 'Product doesn\'t exist but was added to scans.'
-                    ]);
+                    $doesExist = ChainPDO("SELECT COUNT(barcode) FROM products WHERE barcode = ?", [$barcode])->fetchColumn();
 
-                    ChainPDO("INSERT INTO scans_failed VALUES (NULL, ?, ?, ?, now(), ?, ?, ?)", [
+                    if ($doesExist > 0) {
+                        echo json_encode(['success' => 'Product was found and updated']);
+                    } else {
+                        http_response_code(404);
+                        echo json_encode([
+                            'error' => 'Product not found.',
+                            'message' => 'Product doesn\'t exist but was added to scans.'
+                        ]);
+
+                        ChainPDO("INSERT INTO scans_failed VALUES (NULL, ?, ?, ?, now(), ?, ?, ?)", [
+                            $storeId,
+                            $code,
+                            $barcode,
+                            $username,
+                            $serialNumber,
+                            $batteryLevel,
+                        ]);
+                    }
+
+                    ChainPDO("UPDATE products SET location = ?, quantity = quantity + 1, lastScannedBy = ?, lastScannedOn = now() WHERE barcode = ?", [$code, $username, $barcode]);
+                    ChainPDO("UPDATE locations SET systemCount = systemCount + 1, lastScannedOn = now(), lastScannedBy = ? WHERE code = ?", [$username, $code]);
+                    ChainPDO("INSERT INTO scans VALUES (NULL, ?, ?, ?, now(), ?, ?, ?)", [
                         $storeId,
                         $code,
                         $barcode,
@@ -190,24 +205,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $serialNumber,
                         $batteryLevel,
                     ]);
+                } else {
+                    http_response_code(403);
+                    echo json_encode([
+                        'error' => 'Invalid barcode!',
+                        'message' => 'The barcode you scanned is invalid. Please try again.'
+                    ]);
                 }
-
-                ChainPDO("UPDATE products SET location = ?, quantity = quantity + 1, lastScannedBy = ?, lastScannedOn = now() WHERE barcode = ?", [$code, $username, $barcode]);
-                ChainPDO("UPDATE locations SET systemCount = systemCount + 1, lastScannedOn = now(), lastScannedBy = ? WHERE code = ?", [$username, $code]);
-                ChainPDO("INSERT INTO scans VALUES (NULL, ?, ?, ?, now(), ?, ?, ?)", [
-                    $storeId,
-                    $code,
-                    $barcode,
-                    $username,
-                    $serialNumber,
-                    $batteryLevel,
-                ]);
             } else {
-                http_response_code(403);
-                echo json_encode([
-                    'error' => 'Invalid barcode!',
-                    'message' => 'The barcode you scanned is invalid. Please try again.'
-                ]);
+                if (strlen($barcode) >= 5 && strlen($barcode) <= $defaults['scanCharsLimit']) {
+                    $id       = $_JSON['id'];
+                    $batteryLevel   = $_JSON['batteryLevel'];
+                    $code     = $_JSON['code'];
+                    $serialNumber   = $_JSON['serialNumber'];
+                    $storeId   = $_JSON['storeId'];
+
+                    $doesExist = ChainPDO("SELECT COUNT(barcode) FROM products WHERE barcode = ?", [$barcode])->fetchColumn();
+
+                    if ($doesExist > 0) {
+                        echo json_encode(['success' => 'Product was found and updated']);
+                    } else {
+                        http_response_code(404);
+                        echo json_encode([
+                            'error' => 'Product not found.',
+                            'message' => 'Product doesn\'t exist but was added to scans.'
+                        ]);
+
+                        ChainPDO("INSERT INTO scans_failed VALUES (NULL, ?, ?, ?, now(), ?, ?, ?)", [
+                            $storeId,
+                            $code,
+                            $barcode,
+                            $username,
+                            $serialNumber,
+                            $batteryLevel,
+                        ]);
+                    }
+
+                    ChainPDO("UPDATE products SET location = ?, quantity = quantity + 1, lastScannedBy = ?, lastScannedOn = now() WHERE barcode = ?", [$code, $username, $barcode]);
+                    ChainPDO("UPDATE locations SET systemCount = systemCount + 1, lastScannedOn = now(), lastScannedBy = ? WHERE code = ?", [$username, $code]);
+                    ChainPDO("INSERT INTO scans VALUES (NULL, ?, ?, ?, now(), ?, ?, ?)", [
+                        $storeId,
+                        $code,
+                        $barcode,
+                        $username,
+                        $serialNumber,
+                        $batteryLevel,
+                    ]);
+                } else {
+                    http_response_code(403);
+                    echo json_encode([
+                        'error' => 'Invalid barcode!',
+                        'message' => 'The barcode you scanned is invalid. Please try again.'
+                    ]);
+                }
             }
         }
         die();

@@ -48,6 +48,11 @@ let router = new Router({
       component: () => import("@/views/Users.vue"),
     },
     {
+      name: "Clients",
+      path: "/Clients",
+      component: () => import("@/views/Clients.vue"),
+    },
+    {
       name: "Products",
       path: "/Products",
       component: () => import("@/views/Products.vue"),

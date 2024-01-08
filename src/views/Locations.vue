@@ -29,6 +29,15 @@
             color="grey"
             text
             class="mr-6"
+            @click="$refs.UploadLocations.Show()"
+          >
+            <v-icon left>mdi-shape-polygon-plus</v-icon>UPLOAD LOCATIONS
+          </v-btn>
+          <v-btn
+            rounded
+            color="grey"
+            text
+            class="mr-6"
             @click="
               $refs.TabularLocationView.locations = dataset;
               $refs.TabularLocationView.visible = true;
@@ -494,6 +503,11 @@
       :store="store"
       @NewLocation="NewLocation"
     />
+    <UploadLocations
+      ref="UploadLocations"
+      :store="store"
+      @Uploaded="Uploaded"
+    />
     <Scanner ref="Scanner" />
     <ProductsInLocation ref="ProductsInLocation" />
     <TabularLocationView :store="store" ref="TabularLocationView" />
@@ -507,6 +521,7 @@ import Appbar from "@/components/Appbar";
 import Drawer from "@/components/Drawer";
 import Snackbar from "@/components/Snackbar";
 import CreateLocation from "@/components/Dialogs/CreateLocation";
+import UploadLocations from "@/components/Dialogs/UploadLocations";
 import Scanner from "@/components/Dialogs/Scanner";
 import ProductsInLocation from "@/components/Dialogs/ProductsInLocation";
 import TabularLocationView from "@/components/Dialogs/TabularLocationView";
@@ -518,6 +533,7 @@ export default {
     Drawer,
     Snackbar,
     CreateLocation,
+    UploadLocations,
     Scanner,
     ProductsInLocation,
     TabularLocationView,
@@ -796,6 +812,14 @@ export default {
         content: `Created ${dataset.length} location${
           dataset.length > 1 ? "s" : ""
         }.`,
+        color: "success",
+        timeout: 3000,
+      });
+    },
+    Uploaded() {
+      this.$refs.Snackbar.Snackify({
+        visible: true,
+        content: `Location counts updated successfully!`,
         color: "success",
         timeout: 3000,
       });

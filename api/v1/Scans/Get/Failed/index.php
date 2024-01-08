@@ -152,7 +152,7 @@ if ($_GET['context'] === 'display') {
     for ($i = 0; $i < $count; $i++) {
         array_push($arrayData, [
             $dataset[$i]['code'],
-            $dataset[$i]['barcode'],
+            $dataset[$i]['barcode'] . ' ',
             $dataset[$i]['quantity'],
         ]);
 

@@ -41,6 +41,13 @@ export default {
             access: ["Super Admin", "Admin"],
           },
           {
+            icon: "mdi-domain",
+            children: false,
+            text: "Clients",
+            route: "Clients",
+            access: ["Super Admin", "Admin"],
+          },
+          {
             icon: "mdi-store",
             children: false,
             text: "Stores",

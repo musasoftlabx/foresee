@@ -196,7 +196,7 @@ if ($_GET['context'] === 'display') {
             $dataset[$i]['color'],
             $dataset[$i]['size'],
             $dataset[$i]['name'],
-            $dataset[$i]['barcode'],
+            $dataset[$i]['barcode'] . ' ',
             $dataset[$i]['quantity'],
         ]);
 
@@ -269,7 +269,7 @@ Total: $sum"
     $spreadsheet->getActiveSheet()->getStyle($rangeDataset)->applyFromArray($styleArrayDataset);
     $spreadsheet->getActiveSheet()->mergeCells('A1:C1');
     $spreadsheet->getActiveSheet()->mergeCells('A2:D2');
-    $spreadsheet->getActiveSheet()->getStyle('G')->getNumberFormat()->setFormatCode('#');
+    //$spreadsheet->getActiveSheet()->getStyle('G')->getNumberFormat()->setFormatCode('#');
     $spreadsheet->getActiveSheet()->setAutoFilter($rangeHeaders);
     $spreadsheet->getActiveSheet()->getRowDimension(1)->setRowHeight(45);
     $spreadsheet->getActiveSheet()->getRowDimension(2)->setRowHeight(60);
