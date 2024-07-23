@@ -128,7 +128,7 @@ export default {
       LastName: null,
       username: null,
       role: null,
-      roles: ["Super Admin", "Supervisor", "Scanner"],
+      roles: ["Super Admin", "Supervisor", "Scanner", "Physical Counter"],
     };
   },
   methods: {

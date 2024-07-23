@@ -30,7 +30,7 @@ dependencies:
     specifier: ^1.0.6
     version: 1.0.7
   fancygrid:
-    specifier: ^1.7.153
+    specifier: ^1.7.176
     version: 1.7.176
   filepond:
     specifier: ^4.30.3
